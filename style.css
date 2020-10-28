@@ -111,6 +111,10 @@ body {
   right: 50px;
 }
 
+.text-muted span {
+ margin-left: 7px;
+}
+
 /* Hidden */
 .hidden {
   display: none;
