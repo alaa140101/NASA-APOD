@@ -17,7 +17,6 @@ function createDOMNodes(page) {
   const currentArray = page === 'results' ? resultsArray : Object.values(favorites);
   console.log('Current Array', page, currentArray);
   currentArray.forEach((result) => {
-    //resultsArray.photos.forEach((result) => {
       // card container
       const card = document.createElement('div');
       card.classList.add('card');
@@ -30,7 +29,6 @@ function createDOMNodes(page) {
       const img = document.createElement('img');
       img.classList.add('card-img-top');
       img.src = result.url;
-      //img.src = result.img_src;
       img.alt = 'Mars Rover Photos';
       img.loading = 'lazy';
       // Card body
@@ -40,15 +38,17 @@ function createDOMNodes(page) {
       const cardTitle = document.createElement('h5');
       cardTitle.classList.add('card-title');
       cardTitle.textContent = result.title;
-      //cardTitle.textContent = result.rover.name;
       // Save Text
       const saveText = document.createElement('p');
       saveText.classList.add('clickable');
-      saveText.textContent = 'Add to Favorates';
-      //saveText.onclick = `saveFavorite('${result.url}')`;
-      saveText.setAttribute('onclick', `saveFavorite('${result.url}')`);
-      //console.log(`'${result.url}'`);
-      //saveText.onclick = `saveFaverite('${result.img_src}')`
+      if (page === 'results') {
+        saveText.textContent = 'Add to Favorites';
+        saveText.setAttribute('onclick', `saveFavorite('${result.url}')`);
+      }else{
+        saveText.textContent = 'Remove from Favorites';
+        saveText.setAttribute('onclick', `removeFavorite('${result.url}')`);
+      }
+      
       // Card Text
       const cardText = document.createElement('p');
       cardText.textContent = result.explanation;
@@ -62,13 +62,11 @@ function createDOMNodes(page) {
       const copyrightResult = result.copyright === undefined ? '' : result.copyright;
       const copyright = document.createElement('span');
       copyright.textContent = `${copyrightResult}`;
-      //date.textContent = result.earth_date;
       // Append
       footer.append(date, copyright);
       cardBody.append(cardTitle, saveText, cardText, footer);
       link.appendChild(img);
       card.append(link, cardBody);
-      //console.log(copyright);
       imagesContainer.appendChild(card);
     });
 }
@@ -78,6 +76,7 @@ function updateDOM(page) {
   if (localStorage.getItem('nasaFavorites')) {
     favorites = JSON.parse(localStorage.getItem('nasaFavorites'));
   }
+  imagesContainer.textContent = '';
   createDOMNodes(page);
 }
 
@@ -109,6 +108,16 @@ function saveFavorite(itemUrl) {
       localStorage.setItem('nasaFavorites', JSON.stringify(favorites));
     }
   });
+}
+
+// Remove item from Favorites
+function removeFavorite(itemUrl) {
+  if (favorites[itemUrl]) {
+    delete favorites[itemUrl];
+    // Set Favorites in localStorage
+    localStorage.setItem('nasaFavorites', JSON.stringify(favorites));
+    updateDOM('favorites');
+  }
 }
 
 getNasaPictures()
