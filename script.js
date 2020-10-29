@@ -3,19 +3,32 @@ const favoritesNav = document.getElementById('favoritesNav');
 const imagesContainer = document.querySelector('.images-container');
 const saveConfirmed = document.querySelector('.save-confirmed');
 const loader = document.querySelector('.loader');
+const resultNav = document.getElementById('resultsNav');
+const favoriteNav = document.getElementById('favoritesNav');
 
 // NASA API
 const count = 10;
 const apiKey = 'DEMO_KEY';
-//const apiUrl = `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=1000&page=${page}&api_key=${apiKey}`;
 const apiUrl = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}&count=${count}`;
 
 let resultsArray = [];
 let favorites = {};
 
+function showContent(page) {
+  window.scrollTo({top: 0, behavior: 'instant'});
+  loader.classList.add('hidden');
+  const currentNav = page;
+  if (currentNav === 'results') {
+    favoriteNav.classList.add('hidden');
+    resultsNav.classList.remove('hidden');
+  }else{
+    favoriteNav.classList.remove('hidden');
+    resultsNav.classList.add('hidden');
+  }  
+}
+
 function createDOMNodes(page) {
   const currentArray = page === 'results' ? resultsArray : Object.values(favorites);
-  console.log('Current Array', page, currentArray);
   currentArray.forEach((result) => {
       // card container
       const card = document.createElement('div');
@@ -78,16 +91,17 @@ function updateDOM(page) {
   }
   imagesContainer.textContent = '';
   createDOMNodes(page);
+  showContent(page);
 }
 
 
 // Get 10 Images from NASA API
 async function getNasaPictures() {
+  loader.classList.remove('hidden');
   try {
     const response = await fetch(apiUrl);
     resultsArray = await response.json();
-    console.log(resultsArray);
-    updateDOM('favorites');
+    updateDOM('results');
   } catch (error) {
     console.log(error);
   }
@@ -99,7 +113,6 @@ function saveFavorite(itemUrl) {
   resultsArray.forEach((item) => {
     if (item.url.includes(itemUrl) && !favorites[itemUrl]) {
       favorites[itemUrl] = item;
-      console.log(favorites);
       // Show save confirmation for 2 seconds
       saveConfirmed.hidden = false;
       setTimeout(() => {
